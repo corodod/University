@@ -140,11 +140,15 @@ def grades():
 
     # Присоединяем Student, Subject и Group в запрос
     grades_query = (
-        Grade.query
+        db.session.query(
+            Grade,
+            Student.first_name,
+            Student.last_name,
+            Subject.subject_name
+        )
         .join(Student)
         .join(Subject)
         .join(Group)  # Присоединяем Group для фильтрации
-        .add_columns(Student.first_name, Student.last_name, Subject.subject_name, Grade.grade)  # Добавляем Grade.grade
     )
 
     if filters['faculty_id']:
@@ -159,6 +163,19 @@ def grades():
     grades = grades_query.all()
 
     return render_template('grades.html', grades=grades, faculties=faculties, groups=groups)
+
+@app.route('/edit_grade/<int:student_id>/<int:subject_id>', methods=['GET', 'POST'])
+def edit_grade(student_id, subject_id):
+    grade = Grade.query.filter_by(student_id=student_id, subject_id=subject_id).first()
+
+    if request.method == 'POST':
+        # Получаем новую оценку из формы
+        new_grade_value = request.form['grade']
+        grade.grade = new_grade_value
+        db.session.commit()
+        return redirect(url_for('grades'))
+
+    return render_template('edit_grade.html', grade=grade)
 
 if __name__ == '__main__':
     app.run(debug=True)

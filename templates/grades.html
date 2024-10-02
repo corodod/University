@@ -37,10 +37,15 @@
 
     <h2>Grades List</h2>
     <ul>
-        {% for grade in grades %}
-            <li>Student ID: {{ grade.student_id }}, Student Name: {{ grade.first_name }} {{ grade.last_name }}, Subject: {{ grade.subject_name }}, Grade: {{ grade.grade }}</li>
+        {% for grade, first_name, last_name, subject_name in grades %}
+            <li>
+                Student ID: {{ grade.student_id }},
+                Student Name: {{ first_name }} {{ last_name }},
+                Subject: {{ subject_name }},
+                Grade: {{ grade.grade }}
+                <a href="{{ url_for('edit_grade', student_id=grade.student_id, subject_id=grade.subject_id) }}">Edit</a>
+            </li>
         {% endfor %}
     </ul>
-
 </body>
 </html>

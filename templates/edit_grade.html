@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Grade</title>
+</head>
+<body>
+    <h1>Edit Grade</h1>
+    <form method="POST">
+        <label for="grade">Grade:</label>
+        <input type="number" name="grade" value="{{ grade.grade }}" step="0.01" required>
+        <button type="submit">Save</button>
+    </form>
+    <a href="{{ url_for('grades') }}">Back to Grades</a>
+</body>
+</html>
