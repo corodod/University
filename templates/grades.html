@@ -38,7 +38,7 @@
     <h2>Grades List</h2>
     <ul>
         {% for grade in grades %}
-            <li>Student ID: {{ grade.student_id }}, Subject ID: {{ grade.subject_id }}, Grade: {{ grade.grade }}</li>
+            <li>Student ID: {{ grade.student_id }}, Student Name: {{ grade.first_name }} {{ grade.last_name }}, Subject: {{ grade.subject_name }}, Grade: {{ grade.grade }}</li>
         {% endfor %}
     </ul>
 

@@ -7,7 +7,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234@localhost/po
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# Models
+# Модели
 class Faculty(db.Model):
     __tablename__ = 'faculties'
     __table_args__ = {'schema': 'schema'}
@@ -31,7 +31,7 @@ class Student(db.Model):
     first_name = db.Column(db.String(100), nullable=False)
     last_name = db.Column(db.String(100), nullable=False)
     birth_date = db.Column(db.Date, nullable=False)
-    gender = db.Column(db.String(1), nullable=False)  # Измените тип на character(1)
+    gender = db.Column(db.String(1), nullable=False)
     group_id = db.Column(db.Integer, db.ForeignKey('schema.groups.group_id'))
 
     group = db.relationship('Group', backref='students')
@@ -43,7 +43,7 @@ class StudentIDCard(db.Model):
     student_id = db.Column(db.Integer, db.ForeignKey('schema.students.student_id'))
     registration_date = db.Column(db.Date, nullable=False, default=date.today)
     expiration_date = db.Column(db.Date, nullable=False)
-    card_type = db.Column(db.String(20), nullable=False, default="electronic")
+    type = db.Column(db.String(20), nullable=False, default="electronic")
 
 class Grade(db.Model):
     __tablename__ = 'grades'
@@ -61,7 +61,7 @@ class Subject(db.Model):
     hours = db.Column(db.Integer, nullable=False)
     faculty_id = db.Column(db.Integer, db.ForeignKey('schema.faculties.faculty_id'))
 
-# Routes
+# Маршруты
 @app.route('/')
 def index():
     return redirect(url_for('students'))
@@ -75,7 +75,7 @@ def students():
         first_name = request.form['first_name']
         last_name = request.form['last_name']
         birth_date = request.form['birth_date']
-        gender = request.form['gender']  # Получаем значение 'M' или 'F'
+        gender = request.form['gender']
         group_id = request.form['group_id']
 
         new_student = Student(
@@ -86,27 +86,25 @@ def students():
             group_id=group_id
         )
         db.session.add(new_student)
-        db.session.commit()  # Коммитим изменения после добавления студента
+        db.session.commit()
 
-        # Получаем student_id только после того, как объект был добавлен и коммит
         student_id = new_student.student_id
 
         new_card = StudentIDCard(
             student_id=student_id,
             registration_date=date.today(),
             expiration_date=date.today().replace(year=date.today().year + 4),
-            card_type="electronic"
+            type="electronic"
         )
-        db.session.add(new_card)  # Добавляем карточку студента
+        db.session.add(new_card)
 
-        # Добавляем новые оценки
         faculty_id = Group.query.filter_by(group_id=group_id).first().faculty_id
         subjects = Subject.query.filter_by(faculty_id=faculty_id).limit(4).all()
 
         for subject in subjects:
-            new_grade = Grade(student_id=student_id, subject_id=subject.subject_id, grade=None)
+            new_grade = Grade(student_id=student_id, subject_id=subject.subject_id, grade=0, exam_date=date.today())
             db.session.add(new_grade)
-        db.session.commit()  # Коммитим изменения после добавления карточки и оценок
+        db.session.commit()
 
         return redirect(url_for('students'))
 
@@ -128,7 +126,6 @@ def students():
 
     return render_template('students.html', students=students, faculties=faculties, groups=groups)
 
-
 @app.route('/grades', methods=['GET', 'POST'])
 def grades():
     faculties = Faculty.query.all()
@@ -140,7 +137,15 @@ def grades():
         'min_grade': request.args.get('min_grade'),
         'max_grade': request.args.get('max_grade')
     }
-    grades_query = Grade.query.join(Student).join(Group)
+
+    # Присоединяем Student, Subject и Group в запрос
+    grades_query = (
+        Grade.query
+        .join(Student)
+        .join(Subject)
+        .join(Group)  # Присоединяем Group для фильтрации
+        .add_columns(Student.first_name, Student.last_name, Subject.subject_name, Grade.grade)  # Добавляем Grade.grade
+    )
 
     if filters['faculty_id']:
         grades_query = grades_query.filter(Group.faculty_id == filters['faculty_id'])
