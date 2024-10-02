@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students</title>
+</head>
+<body>
+    <h1>Students</h1>
+    <a href="/grades">Go to Grades</a>
+
+    <form method="GET" action="/students">
+        <label for="faculty">Faculty:</label>
+        <select name="faculty">
+            <option value="">All Faculties</option>
+            {% for faculty in faculties %}
+                <option value="{{ faculty.faculty_id }}">{{ faculty.faculty_name }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="group">Group:</label>
+        <select name="group">
+            <option value="">All Groups</option>
+            {% for group in groups %}
+                <option value="{{ group.group_id }}">{{ group.group_name }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="gender">Gender:</label>
+        <select name="gender">
+            <option value="">All Genders</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+        </select>
+
+        <button type="submit">Filter</button>
+    </form>
+
+    <h2>Student List</h2>
+    <ul>
+        {% for student in students %}
+            <li>{{ student.first_name }} {{ student.last_name }} - Group: {{ student.group.group_name }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Add New Student</h2>
+    <form method="POST" action="/students">
+        <input type="text" name="first_name" placeholder="First Name" required>
+        <input type="text" name="last_name" placeholder="Last Name" required>
+        <input type="date" name="birth_date" required>
+        <select name="gender" required>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+        </select>
+        <select name="group_id" required>
+            {% for group in groups %}
+                <option value="{{ group.group_id }}">{{ group.group_name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Add Student</button>
+    </form>
+
+</body>
+</html>
