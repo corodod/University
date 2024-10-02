@@ -71,6 +71,12 @@ def students():
     faculties = Faculty.query.all()
     groups = Group.query.all()
 
+    filters = {
+        'faculty_id': request.args.get('faculty'),
+        'group_id': request.args.get('group'),
+        'gender': request.args.get('gender')
+    }
+
     if request.method == 'POST':
         first_name = request.form['first_name']
         last_name = request.form['last_name']
@@ -106,13 +112,8 @@ def students():
             db.session.add(new_grade)
         db.session.commit()
 
-        return redirect(url_for('students'))
+        return redirect(url_for('students', faculty=filters['faculty_id'], group=filters['group_id'], gender=filters['gender']))
 
-    filters = {
-        'faculty_id': request.args.get('faculty'),
-        'group_id': request.args.get('group'),
-        'gender': request.args.get('gender')
-    }
     students_query = Student.query
 
     if filters['faculty_id']:
@@ -124,7 +125,7 @@ def students():
 
     students = students_query.all()
 
-    return render_template('students.html', students=students, faculties=faculties, groups=groups)
+    return render_template('students.html', students=students, faculties=faculties, groups=groups, filters=filters)
 
 @app.route('/grades', methods=['GET', 'POST'])
 def grades():
@@ -138,7 +139,6 @@ def grades():
         'max_grade': request.args.get('max_grade')
     }
 
-    # Присоединяем Student, Subject и Group в запрос
     grades_query = (
         db.session.query(
             Grade,
@@ -148,7 +148,7 @@ def grades():
         )
         .join(Student)
         .join(Subject)
-        .join(Group)  # Присоединяем Group для фильтрации
+        .join(Group)
     )
 
     if filters['faculty_id']:
@@ -162,18 +162,17 @@ def grades():
 
     grades = grades_query.all()
 
-    return render_template('grades.html', grades=grades, faculties=faculties, groups=groups)
+    return render_template('grades.html', grades=grades, faculties=faculties, groups=groups, filters=filters)
 
 @app.route('/edit_grade/<int:student_id>/<int:subject_id>', methods=['GET', 'POST'])
 def edit_grade(student_id, subject_id):
     grade = Grade.query.filter_by(student_id=student_id, subject_id=subject_id).first()
 
     if request.method == 'POST':
-        # Получаем новую оценку из формы
         new_grade_value = request.form['grade']
         grade.grade = new_grade_value
         db.session.commit()
-        return redirect(url_for('grades'))
+        return redirect(url_for('grades', faculty=request.args.get('faculty'), group=request.args.get('group'), min_grade=request.args.get('min_grade'), max_grade=request.args.get('max_grade')))
 
     return render_template('edit_grade.html', grade=grade)
 

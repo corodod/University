@@ -7,14 +7,14 @@
 </head>
 <body>
     <h1>Grades</h1>
-    <a href="/students">Go to Students</a>
+    <a href="{{ url_for('students', faculty=filters['faculty_id'], group=filters['group_id']) }}">Go to Students</a>
 
     <form method="GET" action="/grades">
         <label for="faculty">Faculty:</label>
         <select name="faculty">
             <option value="">All Faculties</option>
             {% for faculty in faculties %}
-                <option value="{{ faculty.faculty_id }}">{{ faculty.faculty_name }}</option>
+                <option value="{{ faculty.faculty_id }}" {% if filters['faculty_id'] == faculty.faculty_id|string %}selected{% endif %}>{{ faculty.faculty_name }}</option>
             {% endfor %}
         </select>
 
@@ -22,30 +22,28 @@
         <select name="group">
             <option value="">All Groups</option>
             {% for group in groups %}
-                <option value="{{ group.group_id }}">{{ group.group_name }}</option>
+                <option value="{{ group.group_id }}" {% if filters['group_id'] == group.group_id|string %}selected{% endif %}>{{ group.group_name }}</option>
             {% endfor %}
         </select>
 
         <label for="min_grade">Min Grade:</label>
-        <input type="number" name="min_grade">
+        <input type="number" name="min_grade" value="{{ filters['min_grade'] }}">
 
         <label for="max_grade">Max Grade:</label>
-        <input type="number" name="max_grade">
+        <input type="number" name="max_grade" value="{{ filters['max_grade'] }}">
 
         <button type="submit">Filter</button>
     </form>
 
     <h2>Grades List</h2>
-    <ul>
-        {% for grade, first_name, last_name, subject_name in grades %}
-            <li>
-                Student ID: {{ grade.student_id }},
-                Student Name: {{ first_name }} {{ last_name }},
-                Subject: {{ subject_name }},
-                Grade: {{ grade.grade }}
-                <a href="{{ url_for('edit_grade', student_id=grade.student_id, subject_id=grade.subject_id) }}">Edit</a>
-            </li>
-        {% endfor %}
-    </ul>
+<ul>
+    {% for grade, first_name, last_name, subject_name in grades %}
+        <li>
+            {{ first_name }} {{ last_name }} - Subject: {{ subject_name }} - Grade: {{ grade.grade }}
+            <a href="{{ url_for('edit_grade', student_id=grade.student_id, subject_id=grade.subject_id) }}">Edit</a>
+        </li>
+    {% endfor %}
+</ul>
+
 </body>
 </html>
