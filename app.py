@@ -136,7 +136,8 @@ def grades():
         'faculty_id': request.args.get('faculty'),
         'group_id': request.args.get('group'),
         'min_grade': request.args.get('min_grade'),
-        'max_grade': request.args.get('max_grade')
+        'max_grade': request.args.get('max_grade'),
+        'subject_name': request.args.get('subject_name')  # Добавляем новый фильтр
     }
 
     grades_query = (
@@ -159,6 +160,8 @@ def grades():
         grades_query = grades_query.filter(Grade.grade >= filters['min_grade'])
     if filters['max_grade']:
         grades_query = grades_query.filter(Grade.grade <= filters['max_grade'])
+    if filters['subject_name']:
+        grades_query = grades_query.filter(Subject.subject_name.ilike(f"%{filters['subject_name']}%"))  # Фильтрация по названию предмета
 
     grades = grades_query.all()
 

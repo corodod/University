@@ -15,38 +15,45 @@
         <a href="{{ url_for('grades') }}" class="btn btn-primary">Grades</a>
     </div>
     <form method="GET" action="/grades" class="mb-4">
-        <div class="row mb-2">
-            <div class="col">
-                <label for="faculty">Faculty:</label>
-                <select name="faculty" class="form-select">
-                    <option value="">All Faculties</option>
-                    {% for faculty in faculties %}
-                        <option value="{{ faculty.faculty_id }}" {% if filters['faculty_id'] == faculty.faculty_id|string %}selected{% endif %}>{{ faculty.faculty_name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col">
-                <label for="group">Group:</label>
-                <select name="group" class="form-select">
-                    <option value="">All Groups</option>
-                    {% for group in groups %}
-                        <option value="{{ group.group_id }}" {% if filters['group_id'] == group.group_id|string %}selected{% endif %}>{{ group.group_name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+    <div class="row mb-2">
+        <div class="col">
+            <label for="faculty">Faculty:</label>
+            <select name="faculty" class="form-select">
+                <option value="">All Faculties</option>
+                {% for faculty in faculties %}
+                    <option value="{{ faculty.faculty_id }}" {% if filters['faculty_id'] == faculty.faculty_id|string %}selected{% endif %}>{{ faculty.faculty_name }}</option>
+                {% endfor %}
+            </select>
         </div>
-        <div class="row mb-2">
-            <div class="col">
-                <label for="min_grade">Min Grade:</label>
-                <input type="number" name="min_grade" value="{{ filters['min_grade'] }}" class="form-control">
-            </div>
-            <div class="col">
-                <label for="max_grade">Max Grade:</label>
-                <input type="number" name="max_grade" value="{{ filters['max_grade'] }}" class="form-control">
-            </div>
+        <div class="col">
+            <label for="group">Group:</label>
+            <select name="group" class="form-select">
+                <option value="">All Groups</option>
+                {% for group in groups %}
+                    <option value="{{ group.group_id }}" {% if filters['group_id'] == group.group_id|string %}selected{% endif %}>{{ group.group_name }}</option>
+                {% endfor %}
+            </select>
         </div>
-        <button type="submit" class="btn btn-success">Filter</button>
-    </form>
+    </div>
+    <div class="row mb-2">
+        <div class="col">
+            <label for="subject_name">Subject Name:</label>
+            <input type="text" name="subject_name" value="{{ filters['subject_name'] }}" class="form-control" placeholder="Enter subject name">
+        </div>
+    </div>
+    <div class="row mb-2">
+        <div class="col">
+            <label for="min_grade">Min Grade:</label>
+            <input type="number" name="min_grade" value="{{ filters['min_grade'] }}" class="form-control">
+        </div>
+        <div class="col">
+            <label for="max_grade">Max Grade:</label>
+            <input type="number" name="max_grade" value="{{ filters['max_grade'] }}" class="form-control">
+        </div>
+    </div>
+    <button type="submit" class="btn btn-success">Filter</button>
+</form>
+
 
     <h2 class="mb-3">Grades List</h2>
     <table class="table table-bordered">
