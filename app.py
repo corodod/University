@@ -175,6 +175,20 @@ def edit_grade(student_id, subject_id):
         return redirect(url_for('grades', faculty=request.args.get('faculty'), group=request.args.get('group'), min_grade=request.args.get('min_grade'), max_grade=request.args.get('max_grade')))
 
     return render_template('edit_grade.html', grade=grade)
+@app.route('/subjects', methods=['GET'])
+def subjects():
+    faculties = Faculty.query.all()
+
+    # Фильтр по факультету
+    faculty_id = request.args.get('faculty')
+
+    if faculty_id:
+        subjects = Subject.query.filter_by(faculty_id=faculty_id).all()
+    else:
+        subjects = Subject.query.all()
+
+    return render_template('subjects.html', subjects=subjects, faculties=faculties, selected_faculty=faculty_id)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -9,7 +9,11 @@
 </head>
 <body class="container">
     <h1 class="my-4">Students</h1>
-    <a href="/grades" class="btn btn-primary mb-3">Go to Grades</a>
+    <div class="mb-4">
+        <a href="{{ url_for('students') }}" class="btn btn-primary">Students</a>
+        <a href="{{ url_for('subjects') }}" class="btn btn-primary">Subjects</a>
+        <a href="{{ url_for('grades') }}" class="btn btn-primary">Grades</a>
+    </div>
 
     <h2>Add New Student</h2>
     <form method="POST" action="/students" class="mb-4">
