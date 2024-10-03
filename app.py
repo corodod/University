@@ -189,6 +189,16 @@ def subjects():
 
     return render_template('subjects.html', subjects=subjects, faculties=faculties, selected_faculty=faculty_id)
 
+@app.route('/delete_student/<int:student_id>', methods=['POST'])
+def delete_student(student_id):
+    Grade.query.filter_by(student_id=student_id).delete()# Удаление оценок студента
+    StudentIDCard.query.filter_by(student_id=student_id).delete()# Удаление зачетной книжки студента
+    student = Student.query.get(student_id)# Удаление самого студента
+    db.session.delete(student)
+
+    db.session.commit()# Применение изменений
+    return redirect(url_for('students'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
