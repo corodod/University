@@ -178,15 +178,63 @@ def edit_grade(student_id, subject_id):
         return redirect(url_for('grades', faculty=request.args.get('faculty'), group=request.args.get('group'), min_grade=request.args.get('min_grade'), max_grade=request.args.get('max_grade')))
 
     return render_template('edit_grade.html', grade=grade)
-@app.route('/subjects', methods=['GET'])
+@app.route('/subjects', methods=['GET', 'POST'])
 def subjects():
     faculties = Faculty.query.all()
     faculty_id = request.args.get('faculty')
+
+    if request.method == 'POST':
+        # Добавляем новый предмет
+        subject_name = request.form['subject_name']
+        hours = request.form['hours']
+        faculty_id = request.form['faculty_id']
+
+        new_subject = Subject(subject_name=subject_name, hours=hours, faculty_id=faculty_id)
+        db.session.add(new_subject)
+        db.session.commit()
+
+        # Добавляем оценки по новому предмету для всех студентов данного факультета
+        students = Student.query.join(Group).filter(Group.faculty_id == faculty_id).all()
+        for student in students:
+            new_grade = Grade(student_id=student.student_id, subject_id=new_subject.subject_id, grade=0,
+                              exam_date=date.today())
+            db.session.add(new_grade)
+        db.session.commit()
+
+        return redirect(url_for('subjects', faculty=faculty_id))
 
     # Фильтруем предметы по факультету
     subjects = Subject.query.filter_by(faculty_id=faculty_id).all() if faculty_id else Subject.query.all()
 
     return render_template('subjects.html', subjects=subjects, faculties=faculties, selected_faculty=faculty_id)
+
+
+@app.route('/edit_subject/<int:subject_id>', methods=['GET', 'POST'])
+def edit_subject(subject_id):
+    subject = Subject.query.get(subject_id)
+
+    if request.method == 'POST':
+        # Обновляем название предмета и количество часов
+        subject.subject_name = request.form['subject_name']
+        subject.hours = request.form['hours']
+        db.session.commit()
+        return redirect(url_for('subjects', faculty=subject.faculty_id))
+
+    return render_template('edit_subject.html', subject=subject)
+
+
+@app.route('/delete_subject/<int:subject_id>', methods=['POST'])
+def delete_subject(subject_id):
+    # Удаляем оценки по этому предмету у всех студентов
+    Grade.query.filter_by(subject_id=subject_id).delete()
+
+    # Удаляем предмет из базы данных
+    subject = Subject.query.get(subject_id)
+    db.session.delete(subject)
+    db.session.commit()
+
+    return redirect(url_for('subjects', faculty=subject.faculty_id))
+
 
 @app.route('/delete_student/<int:student_id>', methods=['POST'])
 def delete_student(student_id):
