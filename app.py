@@ -71,6 +71,7 @@ def students():
     faculties = Faculty.query.all()
     groups = Group.query.all()
 
+    # Получаем фильтры из запроса
     filters = {
         'faculty_id': request.args.get('faculty'),
         'group_id': request.args.get('group'),
@@ -78,24 +79,20 @@ def students():
     }
 
     if request.method == 'POST':
-        first_name = request.form['first_name']
-        last_name = request.form['last_name']
-        birth_date = request.form['birth_date']
-        gender = request.form['gender']
-        group_id = request.form['group_id']
-
+        # Добавляем нового студента
         new_student = Student(
-            first_name=first_name,
-            last_name=last_name,
-            birth_date=birth_date,
-            gender=gender,
-            group_id=group_id
+            first_name=request.form['first_name'],
+            last_name=request.form['last_name'],
+            birth_date=request.form['birth_date'],
+            gender=request.form['gender'],
+            group_id=request.form['group_id']
         )
         db.session.add(new_student)
         db.session.commit()
 
         student_id = new_student.student_id
 
+        # Создаем зачетную книжку для нового студента
         new_card = StudentIDCard(
             student_id=student_id,
             registration_date=date.today(),
@@ -104,7 +101,8 @@ def students():
         )
         db.session.add(new_card)
 
-        faculty_id = Group.query.filter_by(group_id=group_id).first().faculty_id
+        # Получаем предметы для факультета группы и создаем оценки
+        faculty_id = Group.query.filter_by(group_id=new_student.group_id).first().faculty_id
         subjects = Subject.query.filter_by(faculty_id=faculty_id).limit(4).all()
 
         for subject in subjects:
@@ -116,6 +114,7 @@ def students():
 
     students_query = Student.query
 
+    # Применяем фильтры
     if filters['faculty_id']:
         students_query = students_query.join(Group).filter(Group.faculty_id == filters['faculty_id'])
     if filters['group_id']:
@@ -132,12 +131,13 @@ def grades():
     faculties = Faculty.query.all()
     groups = Group.query.all()
 
+    # Фильтры для оценок
     filters = {
         'faculty_id': request.args.get('faculty'),
         'group_id': request.args.get('group'),
         'min_grade': request.args.get('min_grade'),
         'max_grade': request.args.get('max_grade'),
-        'subject_name': request.args.get('subject_name')  # Добавляем новый фильтр
+        'subject_name': request.args.get('subject_name')
     }
 
     grades_query = (
@@ -152,6 +152,7 @@ def grades():
         .join(Group)
     )
 
+    # Применяем фильтры к оценкам
     if filters['faculty_id']:
         grades_query = grades_query.filter(Group.faculty_id == filters['faculty_id'])
     if filters['group_id']:
@@ -161,7 +162,7 @@ def grades():
     if filters['max_grade']:
         grades_query = grades_query.filter(Grade.grade <= filters['max_grade'])
     if filters['subject_name']:
-        grades_query = grades_query.filter(Subject.subject_name.ilike(f"%{filters['subject_name']}%"))  # Фильтрация по названию предмета
+        grades_query = grades_query.filter(Subject.subject_name.ilike(f"%{filters['subject_name']}%"))
 
     grades = grades_query.all()
 
@@ -172,8 +173,7 @@ def edit_grade(student_id, subject_id):
     grade = Grade.query.filter_by(student_id=student_id, subject_id=subject_id).first()
 
     if request.method == 'POST':
-        new_grade_value = request.form['grade']
-        grade.grade = new_grade_value
+        grade.grade = request.form['grade']
         db.session.commit()
         return redirect(url_for('grades', faculty=request.args.get('faculty'), group=request.args.get('group'), min_grade=request.args.get('min_grade'), max_grade=request.args.get('max_grade')))
 
@@ -181,27 +181,22 @@ def edit_grade(student_id, subject_id):
 @app.route('/subjects', methods=['GET'])
 def subjects():
     faculties = Faculty.query.all()
-
-    # Фильтр по факультету
     faculty_id = request.args.get('faculty')
 
-    if faculty_id:
-        subjects = Subject.query.filter_by(faculty_id=faculty_id).all()
-    else:
-        subjects = Subject.query.all()
+    # Фильтруем предметы по факультету
+    subjects = Subject.query.filter_by(faculty_id=faculty_id).all() if faculty_id else Subject.query.all()
 
     return render_template('subjects.html', subjects=subjects, faculties=faculties, selected_faculty=faculty_id)
 
 @app.route('/delete_student/<int:student_id>', methods=['POST'])
 def delete_student(student_id):
-    Grade.query.filter_by(student_id=student_id).delete()# Удаление оценок студента
-    StudentIDCard.query.filter_by(student_id=student_id).delete()# Удаление зачетной книжки студента
-    student = Student.query.get(student_id)# Удаление самого студента
+    # Удаляем оценки и зачетную книжку студента перед удалением самого студента
+    Grade.query.filter_by(student_id=student_id).delete()
+    StudentIDCard.query.filter_by(student_id=student_id).delete()
+    student = Student.query.get(student_id)
     db.session.delete(student)
-
-    db.session.commit()# Применение изменений
+    db.session.commit()
     return redirect(url_for('students'))
-
 
 if __name__ == '__main__':
     app.run(debug=True)

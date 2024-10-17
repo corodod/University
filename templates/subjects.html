@@ -16,29 +16,36 @@
         <a href="{{ url_for('grades') }}" class="btn btn-primary">Grades</a>
     </div>
 
-    <!-- Фильтр по факультету -->
-    <form method="GET" action="/subjects" class="mb-4">
-        <div class="row mb-2">
-            <div class="col">
-                <label for="faculty">Faculty:</label>
-                <select name="faculty" class="form-select">
-                    <option value="">All Faculties</option>
-                    {% for faculty in faculties %}
-                        <option value="{{ faculty.faculty_id }}" {% if selected_faculty == faculty.faculty_id|string %}selected{% endif %}>
-                            {{ faculty.faculty_name }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
-        <button type="submit" class="btn btn-success">Filter</button>
+    <!-- Форма фильтрации -->
+    <form class="mb-4" method="GET">
+        <label for="faculty" class="form-label">Faculty:</label>
+        <select name="faculty" id="faculty" class="form-select" onchange="this.form.submit()">
+            <option value="">All</option>
+            {% for faculty in faculties %}
+                <option value="{{ faculty.faculty_id }}" {% if selected_faculty == faculty.faculty_id %}selected{% endif %}>{{ faculty.faculty_name }}</option>
+            {% endfor %}
+        </select>
     </form>
 
-    <!-- Список предметов -->
-    <ul class="list-group">
-        {% for subject in subjects %}
-            <li class="list-group-item">{{ subject.subject_name }} - {{ subject.hours }} hours</li>
-        {% endfor %}
-    </ul>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Subject ID</th>
+                <th>Subject Name</th>
+                <th>Hours</th>
+                <th>Faculty ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for subject in subjects %}
+                <tr>
+                    <td>{{ subject.subject_id }}</td>
+                    <td>{{ subject.subject_name }}</td>
+                    <td>{{ subject.hours }}</td>
+                    <td>{{ subject.faculty_id }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </body>
 </html>
