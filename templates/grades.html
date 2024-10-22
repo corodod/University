@@ -57,6 +57,7 @@
     <a href="{{ url_for('grades', faculty=filters.faculty_id, group=filters.group_id, min_grade=filters.min_grade, max_grade=filters.max_grade, sort_order='desc') }}" class="btn btn-link">Sort by Grade Descending</a>
 </div>
 
+<h3>Found {{ total_grades }} grades</h3>
 <table class="table table-striped">
     <thead>
         <tr>

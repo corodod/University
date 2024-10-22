@@ -168,8 +168,9 @@ def grades():
         grades_query = grades_query.order_by(Grade.grade.desc())
 
     grades = grades_query.all()
+    total_grades = grades_query.count()
 
-    return render_template('grades.html', grades=grades, faculties=faculties, groups=groups, filters=filters)
+    return render_template('grades.html', grades=grades, faculties=faculties, groups=groups, filters=filters, total_grades=total_grades)
 
 @app.route('/edit_grade/<int:student_id>/<int:subject_id>', methods=['GET', 'POST'])
 def edit_grade(student_id, subject_id):
@@ -206,10 +207,13 @@ def subjects():
 
         return redirect(url_for('subjects', faculty=faculty_id))
 
-    # Фильтруем предметы по факультету
-    subjects = Subject.query.filter_by(faculty_id=faculty_id).all() if faculty_id else Subject.query.all()
+    subjects_query = Subject.query
+    if faculty_id:
+        subjects_query = subjects_query.filter_by(faculty_id=faculty_id)
+    subjects = subjects_query.all()
+    total_subjects = subjects_query.count()  # Считаем общее количество предметов
 
-    return render_template('subjects.html', subjects=subjects, faculties=faculties, selected_faculty=faculty_id)
+    return render_template('subjects.html', subjects=subjects, faculties=faculties, selected_faculty=faculty_id, total_subjects=total_subjects)
 
 
 @app.route('/edit_subject/<int:subject_id>', methods=['GET', 'POST'])
@@ -241,7 +245,6 @@ def delete_subject(subject_id):
 
 @app.route('/delete_student/<int:student_id>', methods=['POST'])
 def delete_student(student_id):
-    # Удаляем оценки и зачетную книжку студента перед удалением самого студента
     Grade.query.filter_by(student_id=student_id).delete()
     StudentIDCard.query.filter_by(student_id=student_id).delete()
     student = Student.query.get(student_id)
