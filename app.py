@@ -71,7 +71,6 @@ def students():
     faculties = Faculty.query.all()
     groups = Group.query.all()
 
-    # Получаем фильтры из запроса
     filters = {
         'faculty_id': request.args.get('faculty'),
         'group_id': request.args.get('group'),
@@ -79,7 +78,6 @@ def students():
     }
 
     if request.method == 'POST':
-        # Добавляем нового студента
         new_student = Student(
             first_name=request.form['first_name'],
             last_name=request.form['last_name'],
@@ -92,7 +90,6 @@ def students():
 
         student_id = new_student.student_id
 
-        # Создаем зачетную книжку для нового студента
         new_card = StudentIDCard(
             student_id=student_id,
             registration_date=date.today(),
@@ -101,7 +98,6 @@ def students():
         )
         db.session.add(new_card)
 
-        # Получаем предметы для факультета группы и создаем оценки
         faculty_id = Group.query.filter_by(group_id=new_student.group_id).first().faculty_id
         subjects = Subject.query.filter_by(faculty_id=faculty_id).limit(4).all()
 
@@ -114,7 +110,6 @@ def students():
 
     students_query = Student.query
 
-    # Применяем фильтры
     if filters['faculty_id']:
         students_query = students_query.join(Group).filter(Group.faculty_id == filters['faculty_id'])
     if filters['group_id']:
@@ -123,8 +118,9 @@ def students():
         students_query = students_query.filter(Student.gender == filters['gender'])
 
     students = students_query.all()
+    total_students = len(students)
 
-    return render_template('students.html', students=students, faculties=faculties, groups=groups, filters=filters)
+    return render_template('students.html', students=students, faculties=faculties, groups=groups, filters=filters, total_students=total_students)
 
 @app.route('/grades', methods=['GET', 'POST'])
 def grades():
@@ -137,7 +133,8 @@ def grades():
         'group_id': request.args.get('group'),
         'min_grade': request.args.get('min_grade'),
         'max_grade': request.args.get('max_grade'),
-        'subject_name': request.args.get('subject_name')
+        'subject_name': request.args.get('subject_name'),
+        'sort_order': request.args.get('sort_order', 'asc')  # Новая опция сортировки
     }
 
     grades_query = (
@@ -163,6 +160,12 @@ def grades():
         grades_query = grades_query.filter(Grade.grade <= filters['max_grade'])
     if filters['subject_name']:
         grades_query = grades_query.filter(Subject.subject_name.ilike(f"%{filters['subject_name']}%"))
+
+    # Применяем сортировку
+    if filters['sort_order'] == 'asc':
+        grades_query = grades_query.order_by(Grade.grade.asc())
+    else:
+        grades_query = grades_query.order_by(Grade.grade.desc())
 
     grades = grades_query.all()
 
@@ -247,4 +250,4 @@ def delete_student(student_id):
     return redirect(url_for('students'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5001)

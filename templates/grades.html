@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grades</title>
-    <!-- Подключаем Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="container">
@@ -53,32 +52,30 @@
     </div>
     <button type="submit" class="btn btn-success">Filter</button>
 </form>
+<div class="mb-3">
+    <a href="{{ url_for('grades', faculty=filters.faculty_id, group=filters.group_id, min_grade=filters.min_grade, max_grade=filters.max_grade, sort_order='asc') }}" class="btn btn-link">Sort by Grade Ascending</a>
+    <a href="{{ url_for('grades', faculty=filters.faculty_id, group=filters.group_id, min_grade=filters.min_grade, max_grade=filters.max_grade, sort_order='desc') }}" class="btn btn-link">Sort by Grade Descending</a>
+</div>
 
-
-    <h2 class="mb-3">Grades List</h2>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Subject</th>
-                <th>Grade</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for grade, first_name, last_name, subject_name in grades %}
-            <tr>
-                <td>{{ first_name }}</td>
-                <td>{{ last_name }}</td>
-                <td>{{ subject_name }}</td>
-                <td>{{ grade.grade }}</td>
-                <td>
-                    <a href="{{ url_for('edit_grade', student_id=grade.student_id, subject_id=grade.subject_id) }}" class="btn btn-warning">Edit</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Subject</th>
+            <th>Grade</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for grade, first_name, last_name, subject_name in grades %}
+        <tr>
+            <td>{{ first_name }}</td>
+            <td>{{ last_name }}</td>
+            <td>{{ subject_name }}</td>
+            <td>{{ grade.grade }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 </body>
 </html>
