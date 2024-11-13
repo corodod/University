@@ -14,69 +14,73 @@
         <a href="{{ url_for('grades') }}" class="btn btn-primary">Grades</a>
     </div>
     <form method="GET" action="/grades" class="mb-4">
-    <div class="row mb-2">
-        <div class="col">
-            <label for="faculty">Faculty:</label>
-            <select name="faculty" class="form-select">
-                <option value="">All Faculties</option>
-                {% for faculty in faculties %}
-                    <option value="{{ faculty.faculty_id }}" {% if filters['faculty_id'] == faculty.faculty_id|string %}selected{% endif %}>{{ faculty.faculty_name }}</option>
-                {% endfor %}
-            </select>
+        <div class="row mb-2">
+            <div class="col">
+                <label for="faculty">Faculty:</label>
+                <select name="faculty" class="form-select">
+                    <option value="">All Faculties</option>
+                    {% for faculty in faculties %}
+                        <option value="{{ faculty.faculty_id }}" {% if filters['faculty_id'] == faculty.faculty_id|string %}selected{% endif %}>{{ faculty.faculty_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col">
+                <label for="group">Group:</label>
+                <select name="group" class="form-select">
+                    <option value="">All Groups</option>
+                    {% for group in groups %}
+                        <option value="{{ group.group_id }}" {% if filters['group_id'] == group.group_id|string %}selected{% endif %}>{{ group.group_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
         </div>
-        <div class="col">
-            <label for="group">Group:</label>
-            <select name="group" class="form-select">
-                <option value="">All Groups</option>
-                {% for group in groups %}
-                    <option value="{{ group.group_id }}" {% if filters['group_id'] == group.group_id|string %}selected{% endif %}>{{ group.group_name }}</option>
-                {% endfor %}
-            </select>
+        <div class="row mb-2">
+            <div class="col">
+                <label for="subject_name">Subject Name:</label>
+                <input type="text" name="subject_name" value="{{ filters['subject_name'] }}" class="form-control" placeholder="Enter subject name">
+            </div>
         </div>
+        <div class="row mb-2">
+            <div class="col">
+                <label for="min_grade">Min Grade:</label>
+                <input type="number" name="min_grade" value="{{ filters['min_grade'] }}" class="form-control">
+            </div>
+            <div class="col">
+                <label for="max_grade">Max Grade:</label>
+                <input type="number" name="max_grade" value="{{ filters['max_grade'] }}" class="form-control">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-success">Filter</button>
+    </form>
+    <div class="mb-3">
+        <a href="{{ url_for('grades', faculty=filters.faculty_id, group=filters.group_id, min_grade=filters.min_grade, max_grade=filters.max_grade, sort_order='asc') }}" class="btn btn-link">Sort by Grade Ascending</a>
+        <a href="{{ url_for('grades', faculty=filters.faculty_id, group=filters.group_id, min_grade=filters.min_grade, max_grade=filters.max_grade, sort_order='desc') }}" class="btn btn-link">Sort by Grade Descending</a>
     </div>
-    <div class="row mb-2">
-        <div class="col">
-            <label for="subject_name">Subject Name:</label>
-            <input type="text" name="subject_name" value="{{ filters['subject_name'] }}" class="form-control" placeholder="Enter subject name">
-        </div>
-    </div>
-    <div class="row mb-2">
-        <div class="col">
-            <label for="min_grade">Min Grade:</label>
-            <input type="number" name="min_grade" value="{{ filters['min_grade'] }}" class="form-control">
-        </div>
-        <div class="col">
-            <label for="max_grade">Max Grade:</label>
-            <input type="number" name="max_grade" value="{{ filters['max_grade'] }}" class="form-control">
-        </div>
-    </div>
-    <button type="submit" class="btn btn-success">Filter</button>
-</form>
-<div class="mb-3">
-    <a href="{{ url_for('grades', faculty=filters.faculty_id, group=filters.group_id, min_grade=filters.min_grade, max_grade=filters.max_grade, sort_order='asc') }}" class="btn btn-link">Sort by Grade Ascending</a>
-    <a href="{{ url_for('grades', faculty=filters.faculty_id, group=filters.group_id, min_grade=filters.min_grade, max_grade=filters.max_grade, sort_order='desc') }}" class="btn btn-link">Sort by Grade Descending</a>
-</div>
 
-<h3>Found {{ total_grades }} grades</h3>
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Subject</th>
-            <th>Grade</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for grade, first_name, last_name, subject_name in grades %}
-        <tr>
-            <td>{{ first_name }}</td>
-            <td>{{ last_name }}</td>
-            <td>{{ subject_name }}</td>
-            <td>{{ grade.grade }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <h3>Found {{ total_grades }} grades</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Subject</th>
+                <th>Grade</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for grade, first_name, last_name, subject_name in grades %}
+            <tr>
+                <td>{{ first_name }}</td>
+                <td>{{ last_name }}</td>
+                <td>{{ subject_name }}</td>
+                <td>{{ grade.grade }}</td>
+                <td>
+                    <a href="{{ url_for('edit_grade', student_id=grade.student_id, subject_id=grade.subject_id) }}" class="btn btn-warning">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </body>
 </html>
