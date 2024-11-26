@@ -8,11 +8,15 @@
 </head>
 <body class="container">
     <h1 class="my-4">Grades</h1>
+
+    <!-- Ссылки на другие страницы -->
     <div class="mb-4">
         <a href="{{ url_for('students') }}" class="btn btn-primary">Students</a>
         <a href="{{ url_for('subjects') }}" class="btn btn-primary">Subjects</a>
         <a href="{{ url_for('grades') }}" class="btn btn-primary">Grades</a>
     </div>
+
+    <!-- Форма фильтрации -->
     <form method="GET" action="/grades" class="mb-4">
         <div class="row mb-2">
             <div class="col">
@@ -52,11 +56,14 @@
         </div>
         <button type="submit" class="btn btn-success">Filter</button>
     </form>
+
+    <!-- Сортировка -->
     <div class="mb-3">
         <a href="{{ url_for('grades', faculty=filters.faculty_id, group=filters.group_id, min_grade=filters.min_grade, max_grade=filters.max_grade, sort_order='asc') }}" class="btn btn-link">Sort by Grade Ascending</a>
         <a href="{{ url_for('grades', faculty=filters.faculty_id, group=filters.group_id, min_grade=filters.min_grade, max_grade=filters.max_grade, sort_order='desc') }}" class="btn btn-link">Sort by Grade Descending</a>
     </div>
 
+    <!-- Таблица оценок -->
     <h3>Found {{ total_grades }} grades</h3>
     <table class="table table-striped">
         <thead>
@@ -82,5 +89,21 @@
             {% endfor %}
         </tbody>
     </table>
+
+    <!-- Навигация по страницам -->
+    <div class="d-flex justify-content-between">
+        {% if page > 1 %}
+            <a href="{{ url_for('grades', page=page-1, faculty=filters.faculty_id, group=filters.group_id, min_grade=filters.min_grade, max_grade=filters.max_grade, sort_order=filters.sort_order) }}" class="btn btn-secondary">Previous</a>
+        {% else %}
+            <button class="btn btn-secondary" disabled>Previous</button>
+        {% endif %}
+
+        <span>Page {{ page }} of {{ total_pages }}</span>
+
+        {% if page < total_pages %}
+            <a href="{{ url_for('grades', page=page+1, faculty=filters.faculty_id, group=filters.group_id, min_grade=filters.min_grade, max_grade=filters.max_grade, sort_order=filters.sort_order) }}" class="btn btn-secondary">Next</a>
+        {% else %}
+            <button class="btn btn-secondary" disabled>Next</button>
+        {% endif %}
+    </div>
 </body>
-</html>

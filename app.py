@@ -134,9 +134,14 @@ def grades():
         'min_grade': request.args.get('min_grade'),
         'max_grade': request.args.get('max_grade'),
         'subject_name': request.args.get('subject_name'),
-        'sort_order': request.args.get('sort_order', 'asc')  # Новая опция сортировки
+        'sort_order': request.args.get('sort_order', 'asc')  # Сортировка
     }
 
+    # Параметры пагинации
+    page = int(request.args.get('page', 1))  # Номер текущей страницы
+    per_page = 10                           # Количество записей на странице
+
+    # Базовый запрос
     grades_query = (
         db.session.query(
             Grade,
@@ -149,7 +154,7 @@ def grades():
         .join(Group)
     )
 
-    # Применяем фильтры к оценкам
+    # Применяем фильтры
     if filters['faculty_id']:
         grades_query = grades_query.filter(Group.faculty_id == filters['faculty_id'])
     if filters['group_id']:
@@ -167,10 +172,26 @@ def grades():
     else:
         grades_query = grades_query.order_by(Grade.grade.desc())
 
-    grades = grades_query.all()
+    # Общее количество записей (для подсчета страниц)
     total_grades = grades_query.count()
 
-    return render_template('grades.html', grades=grades, faculties=faculties, groups=groups, filters=filters, total_grades=total_grades)
+    # Пагинация (LIMIT и OFFSET)
+    grades_query = grades_query.limit(per_page).offset((page - 1) * per_page)
+    grades = grades_query.all()
+
+    # Вычисляем общее количество страниц
+    total_pages = (total_grades + per_page - 1) // per_page
+
+    return render_template(
+        'grades.html',
+        grades=grades,
+        faculties=faculties,
+        groups=groups,
+        filters=filters,
+        page=page,
+        total_pages=total_pages,
+        total_grades=total_grades
+    )
 
 @app.route('/edit_grade/<int:student_id>/<int:subject_id>', methods=['GET', 'POST'])
 def edit_grade(student_id, subject_id):
