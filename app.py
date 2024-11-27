@@ -207,6 +207,8 @@ def edit_grade(student_id, subject_id):
 def subjects():
     faculties = Faculty.query.all()
     faculty_id = request.args.get('faculty')
+    page = request.args.get('page', 1, type=int)  # Текущая страница
+    per_page = 10  # Количество предметов на странице
 
     if request.method == 'POST':
         # Добавляем новый предмет
@@ -228,13 +230,24 @@ def subjects():
 
         return redirect(url_for('subjects', faculty=faculty_id))
 
+    # Фильтрация
     subjects_query = Subject.query
     if faculty_id:
         subjects_query = subjects_query.filter_by(faculty_id=faculty_id)
-    subjects = subjects_query.all()
-    total_subjects = subjects_query.count()  # Считаем общее количество предметов
 
-    return render_template('subjects.html', subjects=subjects, faculties=faculties, selected_faculty=faculty_id, total_subjects=total_subjects)
+    # Пагинация
+    subjects = subjects_query.paginate(page=page, per_page=per_page)
+    total_subjects = subjects_query.count()  # Общее количество предметов
+
+    return render_template(
+        'subjects.html',
+        subjects=subjects.items,
+        faculties=faculties,
+        selected_faculty=faculty_id,
+        total_subjects=total_subjects,
+        page=page,
+        total_pages=subjects.pages  # Общее количество страниц
+    )
 
 
 @app.route('/edit_subject/<int:subject_id>', methods=['GET', 'POST'])

@@ -9,11 +9,14 @@
 <body class="container">
     <h1 class="my-4">Subjects</h1>
 
+    <!-- Навигация -->
     <div class="mb-4">
         <a href="{{ url_for('students') }}" class="btn btn-primary">Students</a>
         <a href="{{ url_for('subjects') }}" class="btn btn-primary">Subjects</a>
         <a href="{{ url_for('grades') }}" class="btn btn-primary">Grades</a>
     </div>
+
+    <!-- Форма добавления нового предмета -->
     <h2>Add New Subject</h2>
     <form method="POST" action="/subjects" class="mb-4">
         <div class="row mb-2">
@@ -37,6 +40,7 @@
         <button type="submit" class="btn btn-success">Add Subject</button>
     </form>
 
+    <!-- Фильтрация -->
     <h2>Filter Subjects</h2>
     <form method="GET" action="/subjects" class="mb-4">
         <label for="faculty" class="form-label">Faculty:</label>
@@ -48,8 +52,9 @@
         </select>
     </form>
 
-    <h2>Subjects (Total: {{ total_subjects }})</h2>  <!-- Отображаем общее количество предметов -->
-    <table class="table">
+    <!-- Список предметов -->
+    <h2>Subjects (Total: {{ total_subjects }})</h2>
+    <table class="table table-striped">
         <thead>
             <tr>
                 <th>Subject Name</th>
@@ -72,5 +77,22 @@
             {% endfor %}
         </tbody>
     </table>
+
+    <!-- Пагинация -->
+    <div class="d-flex justify-content-between">
+        {% if page > 1 %}
+            <a href="{{ url_for('subjects', page=page-1, faculty=selected_faculty) }}" class="btn btn-secondary">Previous</a>
+        {% else %}
+            <button class="btn btn-secondary" disabled>Previous</button>
+        {% endif %}
+
+        <span>Page {{ page }} of {{ total_pages }}</span>
+
+        {% if page < total_pages %}
+            <a href="{{ url_for('subjects', page=page+1, faculty=selected_faculty) }}" class="btn btn-secondary">Next</a>
+        {% else %}
+            <button class="btn btn-secondary" disabled>Next</button>
+        {% endif %}
+    </div>
 </body>
 </html>
