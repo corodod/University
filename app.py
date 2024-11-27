@@ -77,7 +77,11 @@ def students():
         'gender': request.args.get('gender')
     }
 
+    page = request.args.get('page', 1, type=int)  # Текущая страница
+    per_page = 10  # Количество студентов на странице
+
     if request.method == 'POST':
+        # Добавляем нового студента
         new_student = Student(
             first_name=request.form['first_name'],
             last_name=request.form['last_name'],
@@ -90,6 +94,7 @@ def students():
 
         student_id = new_student.student_id
 
+        # Добавляем студенческий билет
         new_card = StudentIDCard(
             student_id=student_id,
             registration_date=date.today(),
@@ -98,6 +103,7 @@ def students():
         )
         db.session.add(new_card)
 
+        # Автоматически добавляем оценки по предметам факультета
         faculty_id = Group.query.filter_by(group_id=new_student.group_id).first().faculty_id
         subjects = Subject.query.filter_by(faculty_id=faculty_id).limit(4).all()
 
@@ -108,6 +114,7 @@ def students():
 
         return redirect(url_for('students', faculty=filters['faculty_id'], group=filters['group_id'], gender=filters['gender']))
 
+    # Фильтрация студентов
     students_query = Student.query
 
     if filters['faculty_id']:
@@ -117,10 +124,20 @@ def students():
     if filters['gender']:
         students_query = students_query.filter(Student.gender == filters['gender'])
 
-    students = students_query.all()
-    total_students = len(students)
+    # Пагинация
+    students = students_query.paginate(page=page, per_page=per_page)
+    total_students = students_query.count()
 
-    return render_template('students.html', students=students, faculties=faculties, groups=groups, filters=filters, total_students=total_students)
+    return render_template(
+        'students.html',
+        students=students.items,
+        faculties=faculties,
+        groups=groups,
+        filters=filters,
+        total_students=total_students,
+        page=page,
+        total_pages=students.pages  # Общее количество страниц
+    )
 
 @app.route('/grades', methods=['GET', 'POST'])
 def grades():
