@@ -11,9 +11,9 @@
 
     <!-- Навигация -->
     <div class="mb-4">
-        <a href="{{ url_for('students') }}" class="btn btn-primary">Students</a>
-        <a href="{{ url_for('subjects') }}" class="btn btn-primary">Subjects</a>
-        <a href="{{ url_for('grades') }}" class="btn btn-primary">Grades</a>
+        <a href="{{ url_for('students.students') }}">Students</a>
+        <a href="{{ url_for('grades.grades') }}">Grades</a>
+        <a href="{{ url_for('subjects.subjects') }}">Subjects</a>
     </div>
 
     <!-- Форма добавления нового студента -->
@@ -112,7 +112,7 @@
     <!-- Пагинация -->
     <div class="d-flex justify-content-between">
         {% if page > 1 %}
-            <a href="{{ url_for('students', page=page-1, faculty=filters['faculty_id'], group=filters['group_id'], gender=filters['gender']) }}" class="btn btn-secondary">Previous</a>
+        <a href="{{ url_for('students.students', page=page-1, faculty=filters['faculty_id'], group=filters['group_id'], gender=filters['gender']) }}" class="btn btn-secondary">Previous</a>
         {% else %}
             <button class="btn btn-secondary" disabled>Previous</button>
         {% endif %}
@@ -120,7 +120,7 @@
         <span>Page {{ page }} of {{ total_pages }}</span>
 
         {% if page < total_pages %}
-            <a href="{{ url_for('students', page=page+1, faculty=filters['faculty_id'], group=filters['group_id'], gender=filters['gender']) }}" class="btn btn-secondary">Next</a>
+        <a href="{{ url_for('students.students', page=page+1, faculty=filters['faculty_id'], group=filters['group_id'], gender=filters['gender']) }}" class="btn btn-secondary">Next</a>
         {% else %}
             <button class="btn btn-secondary" disabled>Next</button>
         {% endif %}

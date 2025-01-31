@@ -11,9 +11,9 @@
 
     <!-- Навигация -->
     <div class="mb-4">
-        <a href="{{ url_for('students') }}" class="btn btn-primary">Students</a>
-        <a href="{{ url_for('subjects') }}" class="btn btn-primary">Subjects</a>
-        <a href="{{ url_for('grades') }}" class="btn btn-primary">Grades</a>
+        <a href="{{ url_for('students.students') }}">Students</a>
+        <a href="{{ url_for('grades.grades') }}">Grades</a>
+        <a href="{{ url_for('subjects.subjects') }}">Subjects</a>
     </div>
 
     <!-- Форма добавления нового предмета -->
@@ -68,8 +68,8 @@
                 <td>{{ subject.subject_name }}</td>
                 <td>{{ subject.hours }}</td>
                 <td>
-                    <a href="{{ url_for('edit_subject', subject_id=subject.subject_id) }}" class="btn btn-warning">Edit</a>
-                    <form method="POST" action="{{ url_for('delete_subject', subject_id=subject.subject_id) }}" style="display:inline;">
+                    <a href="{{ url_for('subjects.edit_subject', subject_id=subject.subject_id) }}" class="btn btn-warning">Edit</a>
+                    <form method="POST" action="{{ url_for('subjects.delete_subject', subject_id=subject.subject_id) }}" style="display:inline;">
                         <button type="submit" class="btn btn-danger">Delete</button>
                     </form>
                 </td>
@@ -81,7 +81,7 @@
     <!-- Пагинация -->
     <div class="d-flex justify-content-between">
         {% if page > 1 %}
-            <a href="{{ url_for('subjects', page=page-1, faculty=selected_faculty) }}" class="btn btn-secondary">Previous</a>
+        <a href="{{ url_for('subjects.subjects', page=page-1, faculty=selected_faculty) }}" class="btn btn-secondary">Previous</a>
         {% else %}
             <button class="btn btn-secondary" disabled>Previous</button>
         {% endif %}
@@ -89,7 +89,7 @@
         <span>Page {{ page }} of {{ total_pages }}</span>
 
         {% if page < total_pages %}
-            <a href="{{ url_for('subjects', page=page+1, faculty=selected_faculty) }}" class="btn btn-secondary">Next</a>
+        <a href="{{ url_for('subjects.subjects', page=page+1, faculty=selected_faculty) }}" class="btn btn-secondary">Next</a>
         {% else %}
             <button class="btn btn-secondary" disabled>Next</button>
         {% endif %}

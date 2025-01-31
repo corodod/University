@@ -19,7 +19,7 @@
             <input type="number" name="hours" id="hours" value="{{ subject.hours }}" class="form-control" required>
         </div>
         <button type="submit" class="btn btn-primary">Save Changes</button>
-        <a href="{{ url_for('subjects', faculty=subject.faculty_id) }}" class="btn btn-secondary">Cancel</a>
+        <a href="{{ url_for('subjects.subjects', faculty=subject.faculty_id) }}" class="btn btn-secondary">Cancel</a>
     </form>
 </body>
 </html>
