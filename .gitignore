@@ -12,3 +12,6 @@ __pycache__/
 
 # Игнорируем логи и временные файлы
 *.log
+
+# Игнорируем кэш Flask Session
+flask_session/
